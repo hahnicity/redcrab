@@ -23,7 +23,7 @@ def build_parser():
     )
     parser.add_argument(
         "--user-agent",
-        default="redcrab",
+        required=True,
         help="The user agent to make requests with"
     )
     return parser
