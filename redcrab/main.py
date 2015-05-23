@@ -31,7 +31,6 @@ def build_parser():
 def single_threaded_impl(subreddit, db_connection, limit):
     # For now just hardcode it to parse top comments
     top = subreddit.get_top(limit=None)
-    import pdb; pdb.set_trace()
     for sub, comments in [(sub, sub.comments) for sub in subreddit.get_top(limit=limit)]:
         set_submission(db_connection, sub, comments)
     db_connection.close()
