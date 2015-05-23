@@ -36,8 +36,8 @@ def build_parser():
 
 
 def single_threaded_impl(subreddit, db_connection, limit, method):
-    for sub, comments in [(sub, sub.comments) for sub in getattr(subreddit, method)(limit=limit)]:
-        set_submission(db_connection, sub, comments)
+    for sub in getattr(subreddit, method)(limit=limit):
+        set_submission(db_connection, sub, sub.comments)
     db_connection.close()
 
 
