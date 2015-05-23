@@ -32,8 +32,6 @@ def store_comment(comment, submission, db_connection):
         # primary keys and just rollback
         except psycopg2.IntegrityError:
             db_connection.rollback()
-        except Exception as err:
-            import pdb; pdb.set_trace()
         else:
             db_connection.commit()
 
@@ -44,6 +42,10 @@ def store_submission(submission, db_connection):
     """
     title = submission.title.replace("'", "''")
     with db_connection.cursor() as cursor:
-        # Don't catch any IntegrityErrors here for now. We can revisit this assumption later.
-        cursor.execute(u"EXECUTE submission_insert('{}', '{}');".format(title, submission.id))
-        db_connection.commit()
+        try:
+            cursor.execute(u"EXECUTE submission_insert('{}', '{}');".format(title, submission.id))
+        except psycopg2.IntegrityError as err:
+            db_connection.rollback()
+            raise err
+        else:
+            db_connection.commit()
