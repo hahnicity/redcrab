@@ -8,27 +8,43 @@ for later analysis.
 Redcrab was envisioned as a way to crawl through all reddit submissions and grab all comments
 in those submissions and store them in a database in a totally flat manner. Comments are not
 nested in any way, although this could potentially be done with foreign keys or a graph db in
-the future. This is good and bad. Bad that we cannot more closely reference the context in 
-which information is actually store in reddit but good for our goal of basic information retrieval.
+the future. This has upsides and downsides. Downside that we cannot more closely reference the context in 
+which information is actually stored in reddit but good for our goal of basic information retrieval.
+
+As of this moment we assume that postgresql is being used as a database although if needed
+other backends like MySQL can be created with a bit of extra work.
 
 ## Usage
-Through the command line
+### Setup the database
+`redcrab` allows you to automatically to setup the database we want to use without going through all the 
+pain of setting the schema up manually
 
-    redcrab <subreddit> --user-agent <user agent> --username <reddit username>
+    make_redcrab_db --db-user postgres
 
-A minimal example:
+### Store Reddit comments
+Store Reddit comments through the command line
 
-    redcrab funny --user-agent redcrab
+    redcrab <subreddit> --user-agent <user agent> --username <reddit username> --method <how should we get submissions?>
+
+A minimal example getting all top posts for today:
+
+    redcrab funny --user-agent redcrab --method get_top
 
 If you want to connect to a remote database:
 
-    redcrab funny --user-agent redcrab --db-host mydb-host
+    redcrab funny --user-agent redcrab --db-host mydb-host --method get_hot
+
+If you want to authenticate with a reddit username to increase the number of actions per minute:
+
+    redcrab funny --user-agent redcrab --username foobar --method get_controversial
 
 ## Schema
 Right now the schema is very basic. We are simply storing the author name, their comment, and
 the comment id. The submission id can be used as a foreign key to link comments to submissions.
-This is not necessary however. In fact no concrete schema has been put in place nor has a
-postgres table schema file been generated. This is probably the next thing that can be done.
+This is not necessary however. If desired a different schema can be set up through the `postgres_schema.py` file.
+At the moment the implementation of storing comments and submissions is rather hard coded but this
+can change easily as well.
+
 
 ## Caveats
 There is one major caveat to using this tool; the rate limiting of the Reddit API. `redcrab`

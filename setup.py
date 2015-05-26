@@ -17,7 +17,8 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "redcrab=redcrab.main:main",
+            "make_redcrab_db=redcrab.main:db_builder",
+            "redcrab=redcrab.main:reddit_parser",
         ]
     }
 )

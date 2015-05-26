@@ -5,17 +5,30 @@ from praw import Reddit
 
 from redcrab import constants
 from redcrab.crawler import set_submission
-from redcrab.postgres import create_connection
+from redcrab.postgres import create_connection, build_database
 
 
-def build_parser():
-    parser = ArgumentParser()
-    parser.add_argument("subreddit", help="The subreddit you want to parse")
-    parser.add_argument("--username", help="The reddit username")
+def add_db_args(parser):
     parser.add_argument("--db-user", default="redcrab", help="The database user")
     parser.add_argument("--db-name", default="redcrab", help="The name of the database")
     parser.add_argument("--db-password", help="The database password")
     parser.add_argument("--db-host", help="The name of host where the database is", default="localhost")
+
+
+def build_db_parser():
+    """
+    Build the parser for the database schema setter
+    """
+    parser = ArgumentParser()
+    add_db_args(parser)
+    return parser
+
+
+def build_reddit_parser():
+    parser = ArgumentParser()
+    add_db_args(parser)
+    parser.add_argument("subreddit", help="The subreddit you want to parse")
+    parser.add_argument("--username", help="The reddit username")
     parser.add_argument(
         "--sub-limit",
         type=int,
@@ -41,8 +54,13 @@ def single_threaded_impl(subreddit, db_connection, limit, method):
     db_connection.close()
 
 
-def main():
-    args = build_parser().parse_args()
+def db_builder():
+    args = build_db_parser().parse_args()
+    build_database(args.db_host, args.db_user, args.db_password)
+
+
+def reddit_parser():
+    args = build_reddit_parser().parse_args()
     db_connection = create_connection(args.db_host, args.db_name, args.db_user, args.db_password)
     reddit = Reddit(user_agent=args.user_agent)
     subreddit = reddit.get_subreddit(args.subreddit)

@@ -1,5 +1,43 @@
 import psycopg2
 
+from redcrab.postgres_schema import DATABASE
+
+
+def build_database(host, user, password):
+    """
+    Set up the database user, the tablespace and set all grants
+    """
+    # Create the database
+    db_connection = psycopg2.connect(host=host, user=user, password=password, database="postgres")
+    with db_connection.cursor() as cursor:
+        db_connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor.execute("CREATE USER {}".format(DATABASE["owner"]))
+        cursor.execute("CREATE DATABASE {};".format(DATABASE["name"], DATABASE["owner"]))
+    db_connection.close()
+
+    db_connection = psycopg2.connect(host=host, user=DATABASE["owner"], database=DATABASE["name"])  # no password for now
+    with db_connection.cursor() as cursor:
+        for table, vals in DATABASE["tables"].iteritems():
+            tablesql = "create table {} ({}".format(
+                table,
+                ",".join(["{} {}".format(name, type_) for name, type_ in vals["rows"].iteritems()])
+            )
+            if vals.get("pk"):
+                tablesql = "{},primary key ({})".format(tablesql, vals["pk"])
+            if vals.get("fk"):
+                tablesql = "{},foreign key ({}) references {} ({})".format(
+                    tablesql,
+                    vals["fk"]["child_key"],
+                    vals["fk"]["parent_table"],
+                    vals["fk"]["parent_key"]
+                )
+            tablesql = "{});".format(tablesql)
+            cursor.execute(tablesql)
+            # GRANT ALL because why not right?
+            cursor.execute("GRANT ALL ON {} TO {};".format(table, DATABASE["owner"]))
+    db_connection.commit()
+    db_connection.close()
+
 
 def create_connection(host, db, user, password):
     db_connection = psycopg2.connect(host=host, database=db, user=user, password=password)
