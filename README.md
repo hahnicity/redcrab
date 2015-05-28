@@ -50,5 +50,4 @@ can change easily as well.
 There is one major caveat to using this tool; the rate limiting of the Reddit API. `redcrab`
 uses the `praw` library and `praw` limits all Reddit API requests down to 30 a minute or 60
 if we have authenticated our user. Reddit claims banning penalties against clients that
-go above this limit. As a result `redcrab` can conceivably only grab up to 60 comments a minute
-running on a single host. I know this is slow but for now this problem is unavoidable.
+go above this limit. I know this is slow but for now this problem is unavoidable.
