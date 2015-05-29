@@ -10,9 +10,10 @@ from redcrab.postgres import create_connection, build_database
 
 def add_db_args(parser):
     parser.add_argument("--db-user", default="redcrab", help="The database user")
-    parser.add_argument("--db-name", default="redcrab", help="The name of the database")
     parser.add_argument("--db-password", help="The database password")
-    parser.add_argument("--db-host", help="The name of host where the database is", default="localhost")
+    parser.add_argument(
+        "--db-host", help="The name of host where the database is", default="localhost"
+    )
 
 
 def build_db_parser():
@@ -61,7 +62,7 @@ def db_builder():
 
 def reddit_parser():
     args = build_reddit_parser().parse_args()
-    db_connection = create_connection(args.db_host, args.db_name, args.db_user, args.db_password)
+    db_connection = create_connection(args.db_host, args.db_password)
     reddit = Reddit(user_agent=args.user_agent)
     subreddit = reddit.get_subreddit(args.subreddit)
     if args.username:

@@ -21,6 +21,10 @@ pain of setting the schema up manually
 
     make_redcrab_db --db-user postgres
 
+Since the db name and db user will be set up for you automatically there is
+no need to input additional paramaters for the database again unless you want
+to point to a different database host
+
 ### Store Reddit comments
 Store Reddit comments through the command line
 
@@ -39,12 +43,12 @@ If you want to authenticate with a reddit username to increase the number of act
     redcrab funny --user-agent redcrab --username foobar --method get_controversial
 
 ## Schema
-Right now the schema is very basic. We are simply storing the author name, their comment, and
+Right now the schema is very basic. For comments we are simply storing the submission id, the comment text, and
 the comment id. The submission id can be used as a foreign key to link comments to submissions.
-This is not necessary however. If desired a different schema can be set up through the `postgres_schema.py` file.
-At the moment the implementation of storing comments and submissions is rather hard coded but this
-can change easily as well.
-
+If desired a different schema can be set up through the `postgres_schema.py` file.
+We can add additional columns to store by modifying the `DATABASE` var. Then,as long
+as the column names match with the `praw` object attributes they will be correctly
+populated into the database.
 
 ## Caveats
 There is one major caveat to using this tool; the rate limiting of the Reddit API. `redcrab`
